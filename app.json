@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "FloraPoint курьер",
+    "slug": "ibmCurProject",
+    "privacy": "public",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "ios": {
+      "bundleIdentifier": "ru.ibmcurr",
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Это приложение будет дополнительно использовать Face ID или Touch ID, чтобы сохранить логин",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "android": {
+      "package": "ru.ibmcurr",
+      "versionCode": 1,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBoUapnKr9gZzCZcuQo4S0HUOHdNfqO5LA"
+        }
+      }
+    },
+    "version": "0.1.1",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "668fc7a7-ac92-4e61-a447-300e39c97da1"
+      }
+    }
+  }
+}
