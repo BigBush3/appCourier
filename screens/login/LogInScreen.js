@@ -153,12 +153,7 @@ export default class LogInScreen extends React.Component {
         <StatusBar barStyle="light-content" />
         <Loader show={this.state.loader} />
         <SafeAreaView style={styles.safeArea}>
-          <UiHeader
-            headerText="Авторизация"
-            btnLeft="back"
-            pressLeft={() => this.props.navigation.navigate("Home")}
-            underline="rgb(255,255,255)"
-          />
+          <UiHeader headerText="Авторизация" />
 
           <KeyboardAvoidingView
             style={styles.content}
@@ -257,7 +252,7 @@ export default class LogInScreen extends React.Component {
               </View>
               <View style={styles.regLink}>
                 <UiLinkButton
-                  linkPress={() => navigate("Reg")}
+                  linkPress={() => navigate("Ip")}
                   linkText="Нет соединения? "
                   linkLink="Настройки"
                 />

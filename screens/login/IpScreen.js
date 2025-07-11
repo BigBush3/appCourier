@@ -72,12 +72,11 @@ export default class IpScreen extends React.Component {
       loginProgress: false,
       nameInputFocusValidation: true,
       passwordInputFocusValidation: true,
-      ip: "172.20.10.3",
+      ip: "45.141.100.207",
     });
     retrieveData("network").then((net) => {
       if (net) {
         this.setState({ ip: net.ip });
-        this.props.navigation.navigate("LogIn", { ip: net.ip });
       } else {
       }
     });
