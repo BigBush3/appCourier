@@ -76,6 +76,20 @@ export default class UiProductCard extends React.Component {
           />
           <Text style={styles.adressText}>{this.props.adress}</Text>
         </View>
+
+        {this.props.courierName ? (
+          <View style={styles.courierRow}>
+            <MaterialIcons
+              name="person"
+              size={12}
+              style={[styles.icon]}
+              color={Colors.darkGrayColor}
+            />
+            <Text style={styles.courierText}>
+              Курьер: {this.props.courierName}
+            </Text>
+          </View>
+        ) : null}
       </TouchableOpacity>
     );
   }
@@ -112,6 +126,12 @@ const styles = StyleSheet.create({
   adressText: {
     color: Colors.darkGrayColor,
     fontSize: 12,
+  },
+
+  courierText: {
+    color: Colors.darkGrayColor,
+    fontSize: 12,
+    fontWeight: "bold",
   },
 
   icon: {
@@ -155,6 +175,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     //backgroundColor: Colors.greenColor,
     marginTop: 22,
+    marginBottom: 4,
+  },
+
+  courierRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
     marginBottom: 4,
   },
 });

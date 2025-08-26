@@ -15,6 +15,7 @@ import {
 import UiHeader from "../../components/ui/header/Header.js";
 import UiModal from "../../components/ui/modal/Modal.js";
 import UiPhotoCard from "../../components/ui/cards/PhotoCard.js";
+import UiCourierSelect from "../../components/ui/modal/CourierSelect.js";
 import Colors from "../../constants/Colors.js";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -38,6 +39,7 @@ import {
   payOrder,
   addUserToOrder,
 } from "../../services/Orders.js";
+import { getAllDeliverymen } from "../../services/User.js";
 
 import * as Font from "expo-font";
 
@@ -51,6 +53,7 @@ export default class OrderScreen extends React.Component {
     modalAddVisible: false,
     photoLoaded: false,
     pageType: 1,
+    modalCourierSelectVisible: false,
 
     summa: 0,
     pred: 0,
@@ -58,6 +61,8 @@ export default class OrderScreen extends React.Component {
     user: { USERID: 0 },
     coords: [55.755814, 37.617635],
     imagesList: [],
+    couriers: [],
+    selectedCourierId: null,
   };
 
   getPermissionAsync = async () => {
@@ -169,7 +174,23 @@ export default class OrderScreen extends React.Component {
 
     retrieveData("user").then((res) => {
       this.setState({ user: res });
+
+      if (res.IS_MAIN_COURIER) {
+        this.loadCouriers();
+      }
     });
+  };
+
+  loadCouriers = () => {
+    if (this.state.net) {
+      getAllDeliverymen(this.state.net.ip)
+        .then((couriers) => {
+          this.setState({ couriers });
+        })
+        .catch((error) => {
+          console.error("Ошибка загрузки курьеров:", error);
+        });
+    }
   };
 
   _promisedSetState = (newState) => {
@@ -245,15 +266,33 @@ export default class OrderScreen extends React.Component {
   };
 
   addUser() {
-    addUserToOrder(
-      this.state.net.ip,
-      this.state.user.USERSID,
-      this.state.orderid
-    ).then((res) => {
-      console.log(res);
-      this.setState({ pageType: 1 });
-    });
+    if (this.state.user.IS_MAIN_COURIER) {
+      this.setState({ modalCourierSelectVisible: true });
+    } else {
+      this.assignOrderToCourier(this.state.user.USERSID);
+    }
   }
+
+  assignOrderToCourier = (courierId) => {
+    addUserToOrder(this.state.net.ip, courierId, this.state.orderid)
+      .then((res) => {
+        console.log(res);
+        this.setState({ pageType: 1 });
+        Alert.alert("Успех", "Заказ назначен курьеру");
+      })
+      .catch((error) => {
+        console.error("Ошибка назначения заказа:", error);
+        Alert.alert("Ошибка", "Не удалось назначить заказ");
+      });
+  };
+
+  onSelectCourier = (courier) => {
+    this.assignOrderToCourier(courier.USERSID);
+  };
+
+  changeCourier = () => {
+    this.setState({ modalCourierSelectVisible: true });
+  };
 
   doneOrder() {
     doneOrder(this.state.net.ip, this.state.orderid).then((res) => {
@@ -500,6 +539,15 @@ export default class OrderScreen extends React.Component {
 
                 {this.state.pageType == 1 ? (
                   <View>
+                    {this.state.user.IS_MAIN_COURIER ? (
+                      <View style={styles.UiButtonGreen}>
+                        <UiButtonGreenOutline
+                          gOButtonText="Сменить курьера"
+                          onPress={() => this.changeCourier()}
+                        />
+                      </View>
+                    ) : null}
+
                     <View style={styles.UiButtonGreen}>
                       <UiButtonGreenOutline
                         gOButtonText="Сделать фото"
@@ -522,7 +570,11 @@ export default class OrderScreen extends React.Component {
                 {this.state.pageType == 0 ? (
                   <View style={styles.UiButtonGreen}>
                     <UiButtonGreen
-                      gButtonText="Принять в работу"
+                      gButtonText={
+                        this.state.user.IS_MAIN_COURIER
+                          ? "Назначить курьера"
+                          : "Принять в работу"
+                      }
                       disabled={false}
                       onPress={() => {
                         this.addUser();
@@ -584,6 +636,14 @@ export default class OrderScreen extends React.Component {
                   this.setState({ modalAddVisible: false });
                 });
             }}
+          />
+
+          <UiCourierSelect
+            visible={this.state.modalCourierSelectVisible}
+            couriers={this.state.couriers}
+            selectedCourierId={this.state.selectedCourierId}
+            onSelectCourier={this.onSelectCourier}
+            onClose={() => this.setState({ modalCourierSelectVisible: false })}
           />
         </SafeAreaView>
       </View>

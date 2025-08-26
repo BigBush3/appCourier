@@ -23,7 +23,7 @@ import Colors from "../../constants/Colors.js";
 import { isIphoneX } from "../../components/isIphoneX.js";
 
 import { checkLoginCourier } from "../../services/SignIn.js";
-import { getAll } from "../../services/User.js";
+import { getAll, getUserAccess } from "../../services/User.js";
 import { storeData } from "../../services/Storage.js";
 
 import UiModalRadio from "../../components/ui/modal/ModalRadio.js";
@@ -40,7 +40,6 @@ const statusBarIndent =
 const statusHeight =
   Platform.OS === "ios" ? statusBarX : StatusBar.currentHeight;
 const contentHeight = viewportHeight - statusHeight - 56;
-const imageHeight = viewportHeight * 0.35;
 
 export default class LogInScreen extends React.Component {
   static navigationOptions = {
@@ -63,7 +62,6 @@ export default class LogInScreen extends React.Component {
   };
 
   componentDidMount() {
-    //100 111
     this.props.navigation.addListener("willFocus", this.load);
   }
 
@@ -116,17 +114,41 @@ export default class LogInScreen extends React.Component {
           this.state.password
         )
           .then((res) => {
-            console.log("checkLoginCourier", res);
-            this.setState({ loader: false });
             if (res.length > 0) {
-              storeData("user", res[0]);
-              this.props.navigation.navigate("FreeOrder");
+              const user = res[0];
+
+              getUserAccess(this.props.navigation.state.params.ip, user.USERSID)
+                .then((accessResResult) => {
+                  const accessRes = accessResResult.result;
+
+                  const isMainCourier = accessRes.some(
+                    (permission) =>
+                      permission.ACCESSID === "266" && permission.CAN === "1"
+                  );
+
+                  const userWithRole = {
+                    ...user,
+                    IS_MAIN_COURIER: isMainCourier,
+                  };
+
+                  storeData("user", userWithRole);
+                  this.setState({ loader: false });
+                  this.props.navigation.navigate("FreeOrder");
+                })
+                .catch((error) => {
+                  console.error("getUserAccess error:", error);
+                  storeData("user", { ...user, IS_MAIN_COURIER: false });
+                  this.setState({ loader: false });
+                  this.props.navigation.navigate("FreeOrder");
+                });
             } else {
+              this.setState({ loader: false });
               Alert.alert("Внимание", "Пользователь не найден !");
             }
           })
           .catch((error) => {
             console.error(error);
+            this.setState({ loader: false });
           });
       } else {
         this.setState({
