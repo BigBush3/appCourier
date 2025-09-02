@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
 
   halfrow: {
     flex: 1,
-    height: 12,
+    height: 20,
     flexDirection: "row",
     alignItems: "center",
     //backgroundColor: '#faf',
