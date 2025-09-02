@@ -96,6 +96,8 @@ export default class FreeOrderScreen extends React.Component {
             date={formatDateSQL(item.TOTIME)[0]}
             time={formatDateSQL(item.TOTIME)[1]}
             adress={item.RECEIVERADDRESS}
+            statusName={item.STATUSNAME}
+            statusColor={item.STATUSCOLOR}
             onPress={() =>
               navigate("Order", {
                 backPlace: "FreeOrder",

@@ -126,9 +126,15 @@ export default class LogInScreen extends React.Component {
                       permission.ACCESSID === "266" && permission.CAN === "1"
                   );
 
+                  const isMayPay = accessRes.some(
+                    (permission) =>
+                      permission.ACCESSID === "267" && permission.CAN === "1"
+                  );
+
                   const userWithRole = {
                     ...user,
                     IS_MAIN_COURIER: isMainCourier,
+                    IS_MAY_PAY: isMayPay,
                   };
 
                   storeData("user", userWithRole);
@@ -137,7 +143,11 @@ export default class LogInScreen extends React.Component {
                 })
                 .catch((error) => {
                   console.error("getUserAccess error:", error);
-                  storeData("user", { ...user, IS_MAIN_COURIER: false });
+                  storeData("user", {
+                    ...user,
+                    IS_MAIN_COURIER: false,
+                    IS_MAY_PAY: false,
+                  });
                   this.setState({ loader: false });
                   this.props.navigation.navigate("FreeOrder");
                 });

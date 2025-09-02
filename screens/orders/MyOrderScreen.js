@@ -145,6 +145,8 @@ export default class MyOrderScreen extends React.Component {
             time={formatDateSQL(item.TOTIME)[1]}
             adress={item.RECEIVERADDRESS}
             courierName={courierName}
+            statusName={item.STATUSNAME}
+            statusColor={item.STATUSCOLOR}
             onPress={() =>
               navigate("Order", {
                 backPlace: "MyOrder",

@@ -23,6 +23,17 @@ export default class UiProductCard extends React.Component {
 
   componentDidMount() {}
 
+  convertColorToHex = (colorCode) => {
+    if (!colorCode) return "#FFFFFF";
+
+    const num = parseInt(colorCode, 10);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
   render() {
     return (
       <TouchableOpacity
@@ -45,6 +56,23 @@ export default class UiProductCard extends React.Component {
           />
           <Text style={styles.magazinText}>{this.props.title}</Text>
         </View>
+
+        {this.props.statusName ? (
+          <View style={styles.statusRow}>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: this.convertColorToHex(
+                    this.props.statusColor
+                  ),
+                },
+              ]}
+            >
+              <Text style={styles.statusText}>{this.props.statusName}</Text>
+            </View>
+          </View>
+        ) : null}
 
         <View style={styles.row}>
           <View style={(styles.row, styles.halfrow)}>
@@ -184,5 +212,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
     marginBottom: 4,
+  },
+
+  statusRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    marginBottom: 10,
+  },
+
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+  },
+
+  statusText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: Colors.blackColor,
   },
 });

@@ -519,13 +519,17 @@ export default class OrderScreen extends React.Component {
                       </Text>
                     </View>
 
-                    <View style={styles.UiButtonGreen}>
-                      <UiButtonGreen
-                        gButtonText="Оплатить"
-                        disabled={false}
-                        onPress={() => this.setState({ modalAddVisible: true })}
-                      />
-                    </View>
+                    {this.state.user.IS_MAY_PAY ? (
+                      <View style={styles.UiButtonGreen}>
+                        <UiButtonGreen
+                          gButtonText="Оплатить"
+                          disabled={false}
+                          onPress={() =>
+                            this.setState({ modalAddVisible: true })
+                          }
+                        />
+                      </View>
+                    ) : null}
                   </View>
                 ) : null}
 
