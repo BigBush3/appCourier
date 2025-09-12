@@ -3,6 +3,7 @@ import {
   Image,
   Modal,
   ScrollView,
+  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,33 +11,58 @@ import {
 } from "react-native";
 
 import check from "../../../assets/images/ui/check.png";
-import Colors from "../../../constants/Colors.js";
 
 import { isIphoneX } from "../../isIphoneX";
+import {
+  convertColorToHex,
+  getTextColorForBackground,
+} from "../../../utils/index.js";
+
 const bottomX = isIphoneX() ? 34 : 0;
 
-export default class UiCourierSelect extends React.Component {
+export default class UiStatusSelect extends React.Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-    var list = this.props.couriers.map((courier, index) => {
+    var list = this.props.statuses.map((status, index) => {
       return (
         <TouchableOpacity
           key={index}
           onPress={() => {
             this.props.onClose();
-            this.props.onSelectCourier(courier);
+            this.props.onSelectStatus(status);
           }}
           style={[styles.option]}
         >
-          <View style={styles.courierInfo}>
-            <Text style={styles.courierName}>{courier.NAME}</Text>
-            <Text style={styles.courierCode}>Код: {courier.CODE}</Text>
+          <View style={styles.statusInfo}>
+            <View style={styles.statusNameContainer}>
+              <View
+                style={[
+                  styles.statusBadge,
+                  {
+                    backgroundColor: convertColorToHex(status.COLOR),
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.statusBadgeText,
+                    {
+                      color: getTextColorForBackground(
+                        convertColorToHex(status.COLOR)
+                      ),
+                    },
+                  ]}
+                >
+                  {status.NAME}
+                </Text>
+              </View>
+            </View>
           </View>
           <View style={styles.radioCheck}>
-            {this.props.selectedCourierId === courier.USERSID ? (
+            {this.props.selectedStatusId === status.STATUSID ? (
               <Image source={check} style={styles.checkImage} />
             ) : null}
           </View>
@@ -62,7 +88,7 @@ export default class UiCourierSelect extends React.Component {
           ></TouchableOpacity>
           <View style={styles.modalInner}>
             <Text style={styles.subtitleText}>
-              Выберите курьера для назначения
+              Выберите новый статус заказа
             </Text>
             <ScrollView style={styles.radio}>{list}</ScrollView>
           </View>
@@ -100,7 +126,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     flexGrow: 0,
     flexShrink: 0,
-    maxHeight: "70%",
+    maxHeight: Dimensions.get("window").height * 0.7,
     paddingBottom: bottomX,
   },
   subtitleText: {
@@ -125,23 +151,24 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     flexDirection: "row",
   },
-  courierInfo: {
+  statusInfo: {
     flex: 1,
     paddingRight: 12,
   },
-  courierName: {
-    fontSize: 16,
-    lineHeight: 22,
-    letterSpacing: 0.15,
-    color: Colors.blackColor,
-    fontFamily: "Roboto-Medium",
+  statusNameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  courierCode: {
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: "flex-start",
+  },
+  statusBadgeText: {
     fontSize: 14,
-    lineHeight: 18,
-    color: Colors.darkGrayColor,
-    fontFamily: "Roboto-Regular",
-    marginTop: 2,
+    fontWeight: "600",
+    fontFamily: "Roboto-Medium",
   },
   radioCheck: {
     height: 48,

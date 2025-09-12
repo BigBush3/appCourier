@@ -17,7 +17,7 @@ import Loader from "../../components/ui/Loader.js";
 import * as Font from "expo-font";
 import { formatDateSQL } from "../../components/common/Date.js";
 import { retrieveData } from "../../services/Storage.js";
-import { getAvailables } from "../../services/Orders.js";
+import { getMyOrders } from "../../services/Orders.js";
 import { getAllDeliverymen } from "../../services/User.js";
 
 export default class MyOrderScreen extends React.Component {
@@ -65,9 +65,7 @@ export default class MyOrderScreen extends React.Component {
   load = () => {
     retrieveData("network").then((net) => {
       this.setState({ loader: true, net });
-      getAvailables(net.ip).then((res) => {
-        console.log(this.state.user.USERSID, res);
-
+      getMyOrders(net.ip).then((res) => {
         this.setState({ list: res, loader: false });
       });
     });
@@ -135,7 +133,7 @@ export default class MyOrderScreen extends React.Component {
           ? this.getCourierName(item.DELIVERYMANID)
           : null;
 
-        console.log("TTR");
+        console.log("product card", item.STATUSCOLOR);
         return (
           <UiProductCard
             key={index}

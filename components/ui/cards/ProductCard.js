@@ -8,7 +8,10 @@ import {
   Entypo,
 } from "@expo/vector-icons";
 
-import * as Font from "expo-font";
+import {
+  convertColorToHex,
+  getTextColorForBackground,
+} from "../../../utils/index.js";
 
 import Colors from "../../../constants/Colors.js";
 
@@ -22,17 +25,6 @@ export default class UiProductCard extends React.Component {
   }
 
   componentDidMount() {}
-
-  convertColorToHex = (colorCode) => {
-    if (!colorCode) return "#FFFFFF";
-
-    const num = parseInt(colorCode, 10);
-    const r = (num >> 16) & 255;
-    const g = (num >> 8) & 255;
-    const b = num & 255;
-
-    return `rgb(${r}, ${g}, ${b})`;
-  };
 
   render() {
     return (
@@ -63,13 +55,22 @@ export default class UiProductCard extends React.Component {
               style={[
                 styles.statusBadge,
                 {
-                  backgroundColor: this.convertColorToHex(
-                    this.props.statusColor
-                  ),
+                  backgroundColor: convertColorToHex(this.props.statusColor),
                 },
               ]}
             >
-              <Text style={styles.statusText}>{this.props.statusName}</Text>
+              <Text
+                style={[
+                  styles.statusText,
+                  {
+                    color: getTextColorForBackground(
+                      convertColorToHex(this.props.statusColor)
+                    ),
+                  },
+                ]}
+              >
+                {this.props.statusName}
+              </Text>
             </View>
           </View>
         ) : null}

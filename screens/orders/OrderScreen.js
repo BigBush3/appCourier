@@ -38,8 +38,11 @@ import {
   doneOrder,
   payOrder,
   addUserToOrder,
+  getOrderStatuses,
+  setOrderStatus,
 } from "../../services/Orders.js";
 import { getAllDeliverymen } from "../../services/User.js";
+import UiStatusSelect from "../../components/ui/modal/StatusSelect.js";
 
 import * as Font from "expo-font";
 
@@ -54,6 +57,7 @@ export default class OrderScreen extends React.Component {
     photoLoaded: false,
     pageType: 1,
     modalCourierSelectVisible: false,
+    modalStatusSelectVisible: false,
 
     summa: 0,
     pred: 0,
@@ -63,6 +67,8 @@ export default class OrderScreen extends React.Component {
     imagesList: [],
     couriers: [],
     selectedCourierId: null,
+    statuses: [],
+    selectedStatusId: null,
   };
 
   getPermissionAsync = async () => {
@@ -115,6 +121,14 @@ export default class OrderScreen extends React.Component {
           if (item.FIRST == 1) this.setState({ mainPhoto: item.NAME });
         });
       });
+
+      getOrderStatuses(net.ip)
+        .then((statuses) => {
+          this.setState({ statuses });
+        })
+        .catch((error) => {
+          console.error("Ошибка загрузки статусов:", error);
+        });
     });
 
     this.setState({
@@ -211,11 +225,45 @@ export default class OrderScreen extends React.Component {
     return p;
   }
 
-  _pickImage = async () => {
+  _pickImage = () => {
+    Alert.alert("Выберите источник", "Откуда вы хотите выбрать фото?", [
+      {
+        text: "Отмена",
+        style: "cancel",
+      },
+      {
+        text: "Камера",
+        onPress: () => this._pickImageFromCamera(),
+      },
+      {
+        text: "Галерея",
+        onPress: () => this._pickImageFromGallery(),
+      },
+    ]);
+  };
+
+  _pickImageFromCamera = async () => {
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
 
+    this._processImageResult(result);
+  };
+
+  _pickImageFromGallery = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    this._processImageResult(result);
+  };
+
+  _processImageResult = async (result) => {
     if (!result.cancelled) {
       await this._promisedSetState({ loader: true });
       console.log(result);
@@ -247,8 +295,6 @@ export default class OrderScreen extends React.Component {
           console.log("err", res);
           this._promisedSetState({ loader: false });
         });
-    } else {
-      this.setState({ modalAlertAddVisible: !this.state.modalAlertAddVisible });
     }
   };
 
@@ -292,6 +338,24 @@ export default class OrderScreen extends React.Component {
 
   changeCourier = () => {
     this.setState({ modalCourierSelectVisible: true });
+  };
+
+  changeOrderStatus = () => {
+    this.setState({ modalStatusSelectVisible: true });
+  };
+
+  onSelectStatus = (status) => {
+    setOrderStatus(this.state.net.ip, this.state.orderid, status.STATUSID)
+      .then((res) => {
+        console.log("Status changed:", res);
+        this.setState({ modalStatusSelectVisible: false });
+        Alert.alert("Успех", "Статус заказа изменен");
+      })
+      .catch((error) => {
+        console.error("Ошибка изменения статуса:", error);
+        Alert.alert("Ошибка", "Не удалось изменить статус заказа");
+        this.setState({ modalStatusSelectVisible: false });
+      });
   };
 
   doneOrder() {
@@ -370,7 +434,6 @@ export default class OrderScreen extends React.Component {
             {this.state.pageType == 2 ? null : (
               <TouchableOpacity
                 style={[styles.map]}
-                onPress={this.props.onPress}
                 onPress={() => {
                   navigate("MapOrder", {
                     coords: this.state.coords,
@@ -554,6 +617,13 @@ export default class OrderScreen extends React.Component {
 
                     <View style={styles.UiButtonGreen}>
                       <UiButtonGreenOutline
+                        gOButtonText="Сменить статус"
+                        onPress={() => this.changeOrderStatus()}
+                      />
+                    </View>
+
+                    <View style={styles.UiButtonGreen}>
+                      <UiButtonGreenOutline
                         gOButtonText="Сделать фото"
                         onPress={() => this._pickImage()}
                       />
@@ -648,6 +718,14 @@ export default class OrderScreen extends React.Component {
             selectedCourierId={this.state.selectedCourierId}
             onSelectCourier={this.onSelectCourier}
             onClose={() => this.setState({ modalCourierSelectVisible: false })}
+          />
+
+          <UiStatusSelect
+            visible={this.state.modalStatusSelectVisible}
+            statuses={this.state.statuses}
+            selectedStatusId={this.state.selectedStatusId}
+            onSelectStatus={this.onSelectStatus}
+            onClose={() => this.setState({ modalStatusSelectVisible: false })}
           />
         </SafeAreaView>
       </View>
