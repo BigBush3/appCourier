@@ -87,25 +87,27 @@ export default class FreeOrderScreen extends React.Component {
     const { navigate } = this.props.navigation;
 
     var orders = this.state.list.map((item, index) => {
-      return (
-        <UiProductCard
-          key={index}
-          number={item.NUMBER}
-          title={item.DESTENATION}
-          date={formatDateSQL(item.TOTIME)[0]}
-          time={formatDateSQL(item.TOTIME)[1]}
-          adress={item.RECEIVERADDRESS}
-          statusName={item.STATUSNAME}
-          statusColor={item.STATUSCOLOR}
-          onPress={() =>
-            navigate("Order", {
-              backPlace: "FreeOrder",
-              pageType: 0,
-              order: item,
-            })
-          }
-        />
-      );
+      if (item.STATUSDELIVERYMANID == "-17") {
+        return (
+          <UiProductCard
+            key={index}
+            number={item.NUMBER}
+            title={item.DESTENATION}
+            date={formatDateSQL(item.TOTIME)[0]}
+            time={formatDateSQL(item.TOTIME)[1]}
+            adress={item.RECEIVERADDRESS}
+            statusName={item.STATUSNAME}
+            statusColor={item.STATUSCOLOR}
+            onPress={() =>
+              navigate("Order", {
+                backPlace: "FreeOrder",
+                pageType: 0,
+                order: item,
+              })
+            }
+          />
+        );
+      }
     });
 
     return (
