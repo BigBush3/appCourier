@@ -10,7 +10,9 @@ import {
   StatusBar,
   BackHandler,
   Alert,
+  Linking,
 } from "react-native";
+import * as Clipboard from "expo-clipboard";
 
 import UiHeader from "../../components/ui/header/Header.js";
 import UiModal from "../../components/ui/modal/Modal.js";
@@ -366,6 +368,55 @@ export default class OrderScreen extends React.Component {
     });
   }
 
+  handlePhonePress = (phoneNumber, label) => {
+    if (!phoneNumber || phoneNumber.trim() === "") {
+      Alert.alert("Внимание", "Номер телефона не указан");
+      return;
+    }
+
+    const cleanPhone = phoneNumber.trim();
+
+    Alert.alert(`Телефон ${label}`, cleanPhone, [
+      {
+        text: "Отмена",
+        style: "cancel",
+      },
+      {
+        text: "Скопировать",
+        onPress: async () => {
+          try {
+            await Clipboard.setStringAsync(cleanPhone);
+            Alert.alert("Успех", "Номер телефона скопирован в буфер обмена");
+          } catch (error) {
+            console.error("Ошибка копирования:", error);
+            Alert.alert("Ошибка", "Не удалось скопировать номер");
+          }
+        },
+      },
+      {
+        text: "Позвонить",
+        onPress: () => {
+          const phoneUrl = `tel:${cleanPhone}`;
+          Linking.canOpenURL(phoneUrl)
+            .then((supported) => {
+              if (supported) {
+                return Linking.openURL(phoneUrl);
+              } else {
+                Alert.alert(
+                  "Ошибка",
+                  "Функция звонков недоступна на этом устройстве"
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Ошибка звонка:", error);
+              Alert.alert("Ошибка", "Не удалось совершить звонок");
+            });
+        },
+      },
+    ]);
+  };
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -515,9 +566,19 @@ export default class OrderScreen extends React.Component {
 
                 <View style={styles.row}>
                   <Text style={styles.leftText}>Телефон:</Text>
-                  <Text style={styles.rightText}>
-                    {this.props.navigation.state.params.order.CUSTOMERPHONE}
-                  </Text>
+                  <TouchableOpacity
+                    style={styles.phoneContainer}
+                    onPress={() =>
+                      this.handlePhonePress(
+                        this.props.navigation.state.params.order.CUSTOMERPHONE,
+                        "заказчика"
+                      )
+                    }
+                  >
+                    <Text style={styles.phoneText}>
+                      {this.props.navigation.state.params.order.CUSTOMERPHONE}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
 
                 <Text style={styles.headingText}>Получатель</Text>
@@ -538,9 +599,19 @@ export default class OrderScreen extends React.Component {
 
                 <View style={styles.row}>
                   <Text style={styles.leftText}>Телефон:</Text>
-                  <Text style={styles.rightText}>
-                    {this.props.navigation.state.params.order.RECEIVERPHONE}
-                  </Text>
+                  <TouchableOpacity
+                    style={styles.phoneContainer}
+                    onPress={() =>
+                      this.handlePhonePress(
+                        this.props.navigation.state.params.order.RECEIVERPHONE,
+                        "получателя"
+                      )
+                    }
+                  >
+                    <Text style={styles.phoneText}>
+                      {this.props.navigation.state.params.order.RECEIVERPHONE}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.row}>
@@ -841,5 +912,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+
+  phoneContainer: {
+    flex: 0.6,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    borderRadius: 4,
+  },
+
+  phoneText: {
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    color: Colors.greenColor,
+    textDecorationLine: "underline",
   },
 });
