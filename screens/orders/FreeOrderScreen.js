@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StatusBar,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -14,13 +15,18 @@ import Constants from "expo-constants";
 
 import UiHeader from "../../components/ui/header/Header.js";
 import UiProductCard from "../../components/ui/cards/ProductCard";
+import UiSelect from "../../components/ui/form/Select.js";
+import DateFilterModal from "../../components/ui/modal/DateFilterModal.js";
 import Colors from "../../constants/Colors.js";
 import Loader from "../../components/ui/Loader.js";
 
 import { setUserPushToken } from "../../services/SignIn.js";
-import { formatDateSQL } from "../../components/common/Date.js";
+import {
+  formatDateSQL,
+  formatDateDotsCurr,
+} from "../../components/common/Date.js";
 import { retrieveData } from "../../services/Storage.js";
-import { getAvailables } from "../../services/Orders.js";
+import { getAvailablesV2 } from "../../services/Orders.js";
 
 import * as Font from "expo-font";
 
@@ -32,6 +38,10 @@ export default class FreeOrderScreen extends React.Component {
   state = {
     fontsLoaded: false,
     list: [],
+    // Фильтр даты
+    selectedDate: "-1",
+    selectedDateLabel: "Все даты",
+    dateModalVisible: false,
   };
 
   async registerForPushNotificationsAsync(_net) {
@@ -62,15 +72,33 @@ export default class FreeOrderScreen extends React.Component {
 
   load = () => {
     retrieveData("network").then((net) => {
-      this.setState({ loader: true });
+      this.setState({ loader: true, net });
       this.registerForPushNotificationsAsync(net);
 
-      getAvailables(net.ip).then((res) => {
-        // console.log(res);
-
-        this.setState({ list: res, loader: false });
-      });
+      this.loadOrders(net.ip, this.state.selectedDate);
     });
+  };
+
+  loadOrders = (ip, date) => {
+    this.setState({ loader: true });
+    getAvailablesV2(ip, date)
+      .then((res) => {
+        this.setState({ list: res, loader: false });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  onSelectDate = (dateValue, dateLabel) => {
+    this.setState({
+      selectedDate: dateValue,
+      selectedDateLabel: dateLabel,
+    });
+
+    if (this.state.net) {
+      this.loadOrders(this.state.net.ip, dateValue);
+    }
   };
 
   _checkFree(arr) {
@@ -116,8 +144,27 @@ export default class FreeOrderScreen extends React.Component {
         <UiHeader headerText="Свободные заказы" underline="rgb(255,255,255)" />
         <Loader show={this.state.loader} />
 
+        <DateFilterModal
+          visible={this.state.dateModalVisible}
+          selectedDate={this.state.selectedDate}
+          onClose={() => this.setState({ dateModalVisible: false })}
+          onSelectDate={this.onSelectDate}
+        />
+
         <SafeAreaView style={styles.safeArea} forceInset={{ top: "never" }}>
           <View style={styles.content}>
+            {/* Фильтр по дате */}
+            <View style={styles.filterContainer}>
+              <View style={styles.filterItem}>
+                <Text style={styles.filterLabel}>Дата:</Text>
+                <UiSelect
+                  selectText="Выберите дату"
+                  optionText={this.state.selectedDateLabel}
+                  onSelect={() => this.setState({ dateModalVisible: true })}
+                />
+              </View>
+            </View>
+
             <View style={styles.ordersList}>
               <ScrollView
                 style={styles.scrollList}
@@ -157,6 +204,24 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: Colors.whiteColor,
+  },
+  /* Filter */
+  filterContainer: {
+    backgroundColor: Colors.whiteColor,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgb(226,224,229)",
+  },
+  filterItem: {
+    marginBottom: 0,
+  },
+  filterLabel: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: Colors.darkGrayColor,
+    fontFamily: "Roboto-Regular",
+    marginBottom: 4,
   },
   /* List */
   ordersList: {

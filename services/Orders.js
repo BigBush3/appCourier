@@ -22,6 +22,34 @@ export const getMyOrders = (_host) => {
   }).then((response) => response.json());
 };
 
+export const getAvailablesV2 = (_host, _date = "-1") => {
+  console.log("http://" + _host + "/ibm/users/orders/list/availables_v2/");
+  return fetch(
+    "http://" + _host + "/ibm/users/orders/list/availables_v2/" + _date,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  ).then((response) => response.json());
+};
+
+export const getMyOrdersV2 = (_host, _date = "-1", _userId = "-1") => {
+  console.log("http://" + _host + "/ibm/users/orders/list/my_v2/");
+  return fetch(
+    "http://" + _host + "/ibm/users/orders/list/my_v2/" + _date + "/" + _userId,
+    {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  ).then((response) => response.json());
+};
+
 export const getDoneOrders = (_host) => {
   console.log("http://" + _host + "/ibm/users/orders/list/done");
   return fetch("http://" + _host + "/ibm/users/orders/list/done", {

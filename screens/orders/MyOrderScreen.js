@@ -11,13 +11,16 @@ import {
 
 import UiHeader from "../../components/ui/header/Header.js";
 import UiProductCard from "../../components/ui/cards/ProductCard";
+import UiSelect from "../../components/ui/form/Select.js";
+import DateFilterModal from "../../components/ui/modal/DateFilterModal.js";
+import CourierFilterModal from "../../components/ui/modal/CourierFilterModal.js";
 import Colors from "../../constants/Colors.js";
 import Loader from "../../components/ui/Loader.js";
 
 import * as Font from "expo-font";
 import { formatDateSQL } from "../../components/common/Date.js";
 import { retrieveData } from "../../services/Storage.js";
-import { getMyOrders } from "../../services/Orders.js";
+import { getMyOrdersV2 } from "../../services/Orders.js";
 import { getAllDeliverymen } from "../../services/User.js";
 
 export default class MyOrderScreen extends React.Component {
@@ -31,6 +34,14 @@ export default class MyOrderScreen extends React.Component {
     user: { USERID: 0 },
     couriers: [],
     net: null,
+    // Фильтр даты
+    selectedDate: "-1",
+    selectedDateLabel: "Все даты",
+    dateModalVisible: false,
+    // Фильтр курьера
+    selectedCourierId: "-1",
+    selectedCourierName: "Все курьеры",
+    courierModalVisible: false,
   };
 
   componentDidMount() {
@@ -65,14 +76,22 @@ export default class MyOrderScreen extends React.Component {
   load = () => {
     retrieveData("network").then((net) => {
       this.setState({ loader: true, net });
-      getMyOrders(net.ip).then((res) => {
-        this.setState({ list: res, loader: false });
+
+      retrieveData("user").then((user) => {
+        this.setState({ user });
+        this.loadOrders(
+          net.ip,
+          this.state.selectedDate,
+          this.state.selectedCourierId
+        );
       });
     });
+  };
 
-    retrieveData("user").then((res) => {
-      //console.log(res);
-      this.setState({ user: res });
+  loadOrders = (ip, date, courierId) => {
+    this.setState({ loader: true });
+    getMyOrdersV2(ip, date, courierId).then((res) => {
+      this.setState({ list: res, loader: false });
     });
   };
 
@@ -93,6 +112,36 @@ export default class MyOrderScreen extends React.Component {
       (c) => c.USERSID === deliverymanId
     );
     return courier ? courier.NAME : "Неизвестно";
+  };
+
+  onSelectDate = (dateValue, dateLabel) => {
+    this.setState({
+      selectedDate: dateValue,
+      selectedDateLabel: dateLabel,
+    });
+
+    if (this.state.net) {
+      this.loadOrders(
+        this.state.net.ip,
+        dateValue,
+        this.state.selectedCourierId
+      );
+    }
+  };
+
+  onSelectCourier = (courier) => {
+    this.setState({
+      selectedCourierId: courier.USERSID,
+      selectedCourierName: courier.NAME,
+    });
+
+    if (this.state.net) {
+      this.loadOrders(
+        this.state.net.ip,
+        this.state.selectedDate,
+        courier.USERSID
+      );
+    }
   };
 
   _checkFree(arr) {
@@ -163,8 +212,49 @@ export default class MyOrderScreen extends React.Component {
         <UiHeader headerText="Мои заказы" underline="rgb(255,255,255)" />
         <Loader show={this.state.loader} />
 
+        <DateFilterModal
+          visible={this.state.dateModalVisible}
+          selectedDate={this.state.selectedDate}
+          onClose={() => this.setState({ dateModalVisible: false })}
+          onSelectDate={this.onSelectDate}
+        />
+
+        <CourierFilterModal
+          visible={this.state.courierModalVisible}
+          couriers={this.state.couriers}
+          selectedCourierId={this.state.selectedCourierId}
+          onClose={() => this.setState({ courierModalVisible: false })}
+          onSelectCourier={this.onSelectCourier}
+        />
+
         <SafeAreaView style={styles.safeArea} forceInset={{ top: "never" }}>
           <View style={styles.content}>
+            {/* Фильтры */}
+            <View style={styles.filterContainer}>
+              <View style={styles.filterItem}>
+                <Text style={styles.filterLabel}>Дата:</Text>
+                <UiSelect
+                  selectText="Выберите дату"
+                  optionText={this.state.selectedDateLabel}
+                  onSelect={() => this.setState({ dateModalVisible: true })}
+                />
+              </View>
+
+              {/* Фильтр курьера - только для главного курьера */}
+              {this.state.user.IS_MAIN_COURIER ? (
+                <View style={styles.filterItem}>
+                  <Text style={styles.filterLabel}>Курьер:</Text>
+                  <UiSelect
+                    selectText="Выберите курьера"
+                    optionText={this.state.selectedCourierName}
+                    onSelect={() =>
+                      this.setState({ courierModalVisible: true })
+                    }
+                  />
+                </View>
+              ) : null}
+            </View>
+
             <View style={styles.ordersList}>
               <ScrollView
                 style={styles.scrollList}
@@ -204,6 +294,24 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: Colors.whiteColor,
+  },
+  /* Filter */
+  filterContainer: {
+    backgroundColor: Colors.whiteColor,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgb(226,224,229)",
+  },
+  filterItem: {
+    marginBottom: 8,
+  },
+  filterLabel: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: Colors.darkGrayColor,
+    fontFamily: "Roboto-Regular",
+    marginBottom: 4,
   },
   /* List */
   ordersList: {
