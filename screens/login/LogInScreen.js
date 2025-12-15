@@ -349,6 +349,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     height: 48,
     borderColor: "#e0e0e0",
+    color: "rgb(16,0,43)",
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 8,

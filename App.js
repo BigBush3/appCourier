@@ -1,12 +1,12 @@
 import React from "react";
 import { Platform, StatusBar, StyleSheet, Text, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import * as Icon from "@expo/vector-icons";
 
 import { Asset } from "expo-asset";
 import * as Font from "expo-font";
 import AppNavigator from "./navigation/AppNavigator";
-import "react-native-gesture-handler";
 
 export default class App extends React.Component {
   state = {
@@ -25,9 +25,9 @@ export default class App extends React.Component {
       return <View />;
     } else {
       return (
-        <View style={styles.container}>
+        <GestureHandlerRootView style={styles.container}>
           <AppNavigator />
-        </View>
+        </GestureHandlerRootView>
       );
     }
   }

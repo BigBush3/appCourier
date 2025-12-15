@@ -91,7 +91,7 @@ android {
         applicationId 'ru.ibmcurr'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 15
+        versionCode 16
         versionName "9.6"
     }
     signingConfigs {
@@ -101,6 +101,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+             release {
+            storeFile file("@aplatya__ibmAdminProject-keystore.bak.jks")
+            storePassword "4620e96aa622591e4437b782f5f065e4"
+            keyAlias "dfb2e05b231bfb30cc42bdf628258a40"
+            keyPassword "0718e66aae1177a206199f073447ab19"
+        }
     }
     buildTypes {
         debug {
@@ -109,7 +115,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
