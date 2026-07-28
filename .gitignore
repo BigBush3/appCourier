@@ -1,7 +1,8 @@
 node_modules/
 .expo/*
 npm-debug.*
+*.mobileprovision
 *.jks
 *.p12
 *.key
-*.mobileprovision
+*-keystore-credentials.md

@@ -10,9 +10,6 @@ import {
   View,
 } from "react-native";
 
-import { Notifications } from "expo";
-import Constants from "expo-constants";
-
 import UiHeader from "../../components/ui/header/Header.js";
 import UiProductCard from "../../components/ui/cards/ProductCard";
 import UiSelect from "../../components/ui/form/Select.js";
@@ -21,6 +18,7 @@ import Colors from "../../constants/Colors.js";
 import Loader from "../../components/ui/Loader.js";
 
 import { setUserPushToken } from "../../services/SignIn.js";
+import { getExpoPushToken } from "../../services/Push.js";
 import {
   formatDateSQL,
   formatDateDotsCurr,
@@ -45,14 +43,21 @@ export default class FreeOrderScreen extends React.Component {
   };
 
   async registerForPushNotificationsAsync(_net) {
-    let token = await Notifications.getExpoPushTokenAsync();
+    try {
+      const user = await retrieveData("user");
 
-    retrieveData("user").then((res) => {
-      this.setState({ user: res });
-      setUserPushToken(_net.ip, res.USERSID, token)
-        .then((res) => {})
-        .catch((err) => console.log(err));
-    });
+      if (!user || !user.USERSID) {
+        return;
+      }
+
+      this.setState({ user });
+
+      const token = await getExpoPushToken();
+
+      await setUserPushToken(_net.ip, user.USERSID, token);
+    } catch (err) {
+      console.log("registerForPushNotificationsAsync:", err);
+    }
   }
 
   componentDidMount() {

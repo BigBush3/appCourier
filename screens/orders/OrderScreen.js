@@ -548,6 +548,13 @@ export default class OrderScreen extends React.Component {
                     }{" "}
                   </Text>
                 </View>
+
+                <View style={styles.row}>
+                  <Text style={styles.leftText}>Флорист:</Text>
+                  <Text style={styles.rightText}>
+                    {this.props.navigation.state.params.order.CONTROLEDBYNAME}
+                  </Text>
+                </View>
                 <Text style={styles.headingText}>Заказчик</Text>
 
                 <View style={styles.row}>
