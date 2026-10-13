@@ -17,8 +17,7 @@ import DateFilterModal from "../../components/ui/modal/DateFilterModal.js";
 import Colors from "../../constants/Colors.js";
 import Loader from "../../components/ui/Loader.js";
 
-import { setUserPushToken } from "../../services/SignIn.js";
-import { getExpoPushToken } from "../../services/Push.js";
+import { registerPushToken } from "../../services/Push.js";
 import {
   formatDateSQL,
   formatDateDotsCurr,
@@ -43,20 +42,23 @@ export default class FreeOrderScreen extends React.Component {
   };
 
   async registerForPushNotificationsAsync(_net) {
-    try {
-      const user = await retrieveData("user");
+    if (this.pushTokenSent) {
+      return;
+    }
 
-      if (!user || !user.USERSID) {
-        return;
-      }
+    const user = await retrieveData("user");
 
-      this.setState({ user });
+    if (!user || !user.USERSID) {
+      console.log("registerForPushNotificationsAsync: пользователь не найден в хранилище");
+      return;
+    }
 
-      const token = await getExpoPushToken();
+    this.setState({ user });
 
-      await setUserPushToken(_net.ip, user.USERSID, token);
-    } catch (err) {
-      console.log("registerForPushNotificationsAsync:", err);
+    const result = await registerPushToken(_net.ip, user.USERSID);
+
+    if (result !== null) {
+      this.pushTokenSent = true;
     }
   }
 
@@ -78,7 +80,9 @@ export default class FreeOrderScreen extends React.Component {
   load = () => {
     retrieveData("network").then((net) => {
       this.setState({ loader: true, net });
-      this.registerForPushNotificationsAsync(net);
+      this.registerForPushNotificationsAsync(net).catch((err) =>
+        console.log("registerForPushNotificationsAsync:", err?.message || err)
+      );
 
       this.loadOrders(net.ip, this.state.selectedDate);
     });

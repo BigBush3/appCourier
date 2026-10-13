@@ -15,18 +15,20 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         }
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "package": "ru.ibmcurr",
-      "versionCode": 1,
+      "versionCode": 18,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBoUapnKr9gZzCZcuQo4S0HUOHdNfqO5LA"
         }
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
-    "version": "9.1",
+    "version": "9.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
@@ -54,11 +56,12 @@
             "ndkVersion": "27.1.12297006"
           }
         }
-      ]
+      ],
+      "./plugins/withAndroidSigning"
     ],
     "extra": {
       "eas": {
-        "projectId": "668fc7a7-ac92-4e61-a447-300e39c97da1"
+        "projectId": "a627ee48-2e80-41b5-9b68-ae0bfc6c2aad"
       }
     }
   }

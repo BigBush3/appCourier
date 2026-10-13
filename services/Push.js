@@ -3,6 +3,8 @@ import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 
+import { setUserPushToken } from "./SignIn.js";
+
 const ANDROID_CHANNEL_ID = "default";
 
 Notifications.setNotificationHandler({
@@ -65,4 +67,20 @@ export const getExpoPushToken = async () => {
   const { data } = await Notifications.getExpoPushTokenAsync({ projectId });
 
   return data;
+};
+
+export const registerPushToken = async (_host, _uid) => {
+  if (!_host || !_uid) {
+    console.log("registerPushToken: нет host или uid", _host, _uid);
+    return null;
+  }
+
+  try {
+    const token = await getExpoPushToken();
+
+    return await setUserPushToken(_host, _uid, token);
+  } catch (err) {
+    console.log("registerPushToken:", err?.message || err);
+    return null;
+  }
 };

@@ -37,18 +37,37 @@ export const checkLoginCourier = (_host,_log, _pass) => {
 
 
 
-export const setUserPushToken = (_host, _uid, _token) => {
-  return fetch('http://'+_host+'/ibm/courier/user/token' , {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token: _token,
-        uid: _uid,
-      }),
-    }).then((response) => response.json());
+export const setUserPushToken = async (_host, _uid, _token) => {
+  const url = 'http://'+_host+'/ibm/courier/user/token';
+  const body = JSON.stringify({
+    token: _token,
+    uid: _uid,
+  });
+
+  console.log('setUserPushToken request:', url, body);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body,
+  });
+
+  const text = await response.text();
+
+  console.log('setUserPushToken response:', response.status, text);
+
+  if (!response.ok) {
+    throw new Error('setUserPushToken failed: '+response.status+' '+text);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    return text;
+  }
 }
 
 

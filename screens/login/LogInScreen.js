@@ -23,6 +23,7 @@ import Colors from "../../constants/Colors.js";
 import { isIphoneX } from "../../components/isIphoneX.js";
 
 import { checkLoginCourier } from "../../services/SignIn.js";
+import { registerPushToken } from "../../services/Push.js";
 import { getAll, getUserAccess } from "../../services/User.js";
 import { storeData } from "../../services/Storage.js";
 
@@ -98,6 +99,16 @@ export default class LogInScreen extends React.Component {
     });
   };
 
+  finishLogin = async (userWithRole) => {
+    const ip = this.props.navigation.state.params.ip;
+
+    await storeData("user", userWithRole);
+    await registerPushToken(ip, userWithRole.USERSID);
+
+    this.setState({ loader: false });
+    this.props.navigation.navigate("FreeOrder");
+  };
+
   LogIn = (navigate) => {
     console.log(this.state.login.length, this.state.password.length);
     if (this.state.login.length < 2 && this.state.password.length < 2) {
@@ -131,25 +142,19 @@ export default class LogInScreen extends React.Component {
                       permission.ACCESSID === "267" && permission.CAN === "1"
                   );
 
-                  const userWithRole = {
+                  return this.finishLogin({
                     ...user,
                     IS_MAIN_COURIER: isMainCourier,
                     IS_MAY_PAY: isMayPay,
-                  };
-
-                  storeData("user", userWithRole);
-                  this.setState({ loader: false });
-                  this.props.navigation.navigate("FreeOrder");
+                  });
                 })
                 .catch((error) => {
                   console.error("getUserAccess error:", error);
-                  storeData("user", {
+                  return this.finishLogin({
                     ...user,
                     IS_MAIN_COURIER: false,
                     IS_MAY_PAY: false,
                   });
-                  this.setState({ loader: false });
-                  this.props.navigation.navigate("FreeOrder");
                 });
             } else {
               this.setState({ loader: false });

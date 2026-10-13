@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "997917211104",
+    "project_id": "florapoint-ceebb",
+    "storage_bucket": "florapoint-ceebb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997917211104:android:ab7ab3e85b4149c6ea9385",
+        "android_client_info": {
+          "package_name": "ru.ibmcurr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyPVZfbFWHx9D0SjeZ0pkK0Tb9YTUcms0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
