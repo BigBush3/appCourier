@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "ru.ibmcurr",
-      "versionCode": 18,
+      "versionCode": 20,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBoUapnKr9gZzCZcuQo4S0HUOHdNfqO5LA"
@@ -28,7 +28,7 @@
       },
       "googleServicesFile": "./google-services.json"
     },
-    "version": "9.6",
+    "version": "9.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
@@ -51,8 +51,9 @@
         {
           "android": {
             "usesCleartextTraffic": true,
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.0.0",
             "ndkVersion": "27.1.12297006"
           }
         }
