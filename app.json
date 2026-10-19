@@ -28,7 +28,7 @@
       },
       "googleServicesFile": "./google-services.json"
     },
-    "version": "9.7",
+    "version": "9.8",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
